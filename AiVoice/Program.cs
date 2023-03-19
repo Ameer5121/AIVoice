@@ -213,14 +213,15 @@ namespace AiVoice
                 Console.WriteLine("Would you like to use the previous keys that you have inserted? Y/N ");
                 while (true)
                 {
-                    if (Console.ReadLine()?.ToLower() == "y")
+                    var input = Console.ReadLine();
+                    if (input?.ToLower() == "y")
                     {
                        var keys = File.ReadAllLines(_keyLocation);
                         _openAiAPIKey = keys[0];
                         _deepLAPIKey = keys[1];
                         return true;
                     }
-                    else if (Console.ReadLine()?.ToLower() == "n") return false;
+                    else if (input?.ToLower() == "n") return false;
                 }
             }
             return false;
