@@ -72,7 +72,9 @@ namespace AiVoice
                             japaneseMessage = await EnglishToJapaneseText(englishMessage);
                         }catch(HttpRequestException)
                         {
+                            
                             Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
+                            Console.ReadLine();
                             Environment.Exit(1);
                         }
                         await GetAudioFile(japaneseMessage);
@@ -195,6 +197,7 @@ namespace AiVoice
             Console.WriteLine("\n");
             Console.WriteLine("Enter your DeepL API key");
             _deepLAPIKey = Console.ReadLine();
+            Console.WriteLine("\n");
             SaveAPIKeys(_openAiAPIKey, _deepLAPIKey);
         }
 
