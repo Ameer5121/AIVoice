@@ -21,8 +21,8 @@ namespace AiVoice
         private static string _location;
         private static bool _recording;
         private static string _audioFileLocation;
-        private static string _deepLAPIKey;
-        private static string _openAiAPIKey;
+        private static string? _deepLAPIKey;
+        private static string? _openAiAPIKey;
         private static string _keyLocation;
 
         static Program()
@@ -70,7 +70,7 @@ namespace AiVoice
                         {
                             var englishMessage = await SpeechToEnglishText(_location);
                             japaneseMessage = await EnglishToJapaneseText(englishMessage);
-                        }catch(HttpRequestException e)
+                        }catch(HttpRequestException)
                         {
                             Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
                             Environment.Exit(1);
@@ -90,7 +90,7 @@ namespace AiVoice
 
         private static async Task<string> SpeechToEnglishText(string audioFile)
         {
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {_openAiAPIKey}");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAiAPIKey);
             var bytes = File.ReadAllBytes(audioFile);
             var formData = new MultipartFormDataContent();
             formData.Add(new ByteArrayContent(bytes), "file", "wav");
@@ -103,13 +103,13 @@ namespace AiVoice
                 text = ""
             };
             messageModel = JsonConvert.DeserializeAnonymousType(jsonMessage, messageModel);
-            Console.WriteLine(messageModel.text);
+            Console.WriteLine(messageModel!.text);
             return messageModel.text;
         }
 
         private static async Task<string> EnglishToJapaneseText(string text)
         {
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"DeepL-Auth-Key {_deepLAPIKey}");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("DeepL-Auth-Key", _deepLAPIKey);
             var dic = new Dictionary<string, string>();
             dic.Add("target_lang", "JA");
             dic.Add("text", text);
@@ -127,7 +127,7 @@ namespace AiVoice
                 }
             };
             messageModel = JsonConvert.DeserializeAnonymousType(japaneseText, messageModel);
-            Console.WriteLine(messageModel.translations[0].text);
+            Console.WriteLine(messageModel!.translations[0].text);
             return messageModel.translations[0].text;
         }
 
@@ -197,7 +197,7 @@ namespace AiVoice
             SaveAPIKeys(_openAiAPIKey, _deepLAPIKey);
         }
 
-        private static void SaveAPIKeys(string openAiKey, string DeepLKey)
+        private static void SaveAPIKeys(string? openAiKey, string? DeepLKey)
         {
             using(var stream = File.CreateText("./Keys.txt"))
             {
