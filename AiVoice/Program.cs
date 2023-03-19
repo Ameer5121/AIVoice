@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Net.Http.Json;
 using System.Text;
 using static System.Net.Mime.MediaTypeNames;
+using System.Net;
 using System.Diagnostics;
 
 namespace AiVoice
@@ -27,9 +28,6 @@ namespace AiVoice
             Console.OutputEncoding = Encoding.UTF8;
             _audioFileLocation = $"./AiAudio.wav";
             _httpClient = new HttpClient();
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "APIKEY");
-            _httpClient.DefaultRequestHeaders.Add("X-Naver-Client-Id", "CLIENTID");
-            _httpClient.DefaultRequestHeaders.Add("X-Naver-Client-Secret", "SECRET");
             _location = $"{Environment.CurrentDirectory}Temp.wav";
             _waveInEvent = new WaveInEvent();
             _waveOutEvent = new DirectSoundOut(GetCorrectDeviceGuid());
@@ -38,15 +36,13 @@ namespace AiVoice
         }
         static async Task Main(string[] args)
         {
-            if (!VirtualCableExists())
-            {
-                Console.WriteLine("VB Virtual Cable is not installed or is disabled. Please check it before starting.");
-                return;
-            }else if (!VoiceVoxOn())
-            {
-                Console.WriteLine("VoiceVox is not installed or is not open. Please check it before starting.");
-                return;
-            }
+            CheckForRequiredApplications();
+            InsertAPIKeys();       
+            await Start();
+        }
+
+        private static async Task Start()
+        {
             Console.WriteLine("You can start recording by pressing L, and stop recording by pressing L again. \n");
             while (true)
             {
@@ -65,8 +61,16 @@ namespace AiVoice
                         _recording = false;
                         Console.WriteLine("Recording Stopped.");
                         _waveFileWriter.Dispose();
-                        var englishMessage = await SpeechToEnglishText(_location);
-                        var japaneseMessage = await EnglishToJapaneseText(englishMessage);
+                        string japaneseMessage = "";
+                        try
+                        {
+                            var englishMessage = await SpeechToEnglishText(_location);
+                            japaneseMessage = await EnglishToJapaneseText(englishMessage);
+                        }catch(HttpRequestException e)
+                        {
+                            Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
+                            Environment.Exit(1);
+                        }
                         await GetAudioFile(japaneseMessage);
                         await PlayAudioFile();
                         Console.WriteLine("\n\n");
@@ -87,6 +91,7 @@ namespace AiVoice
             formData.Add(new ByteArrayContent(bytes), "file", "wav");
             formData.Add(new StringContent("whisper-1"), "model");
             var response = await _httpClient.PostAsync("https://api.openai.com/v1/audio/transcriptions", formData);
+            if (response.StatusCode != HttpStatusCode.OK) throw new HttpRequestException();
             var jsonMessage = await response.Content.ReadAsStringAsync();
             var messageModel = new
             {
@@ -100,24 +105,24 @@ namespace AiVoice
         private static async Task<string> EnglishToJapaneseText(string text)
         {
             var dic = new Dictionary<string, string>();
-            dic.Add("source", "en");
-            dic.Add("target", "ja");
+            dic.Add("target_lang", "ja");
             dic.Add("text", text);
-            var response = await _httpClient.PostAsync("https://openapi.naver.com/v1/papago/n2mt", new FormUrlEncodedContent(dic));
+            var response = await _httpClient.PostAsync("https://api-free.deepl.com/v2/translate", new FormUrlEncodedContent(dic));
+            if (response.StatusCode != HttpStatusCode.OK) throw new HttpRequestException();
             var japaneseText = await response.Content.ReadAsStringAsync();
             var messageModel = new
             {
-                message = new
+                translations = new[]
                 {
-                    result = new
-                    {
-                        translatedText = ""
-                    }
+                   new
+                   {
+                       text = ""
+                   }
                 }
             };
             messageModel = JsonConvert.DeserializeAnonymousType(japaneseText, messageModel);
-            Console.WriteLine(messageModel.message.result.translatedText);
-            return messageModel.message.result.translatedText;
+            Console.WriteLine(messageModel.translations[0].text);
+            return messageModel.translations[0].text;
         }
 
         private static async Task GetAudioFile(string japaneseText)
@@ -161,6 +166,30 @@ namespace AiVoice
             var processes = Process.GetProcesses();
             foreach (var process in processes) if (process.ProcessName == "VOICEVOX") return true;
             return false;
+        }
+
+        private static void CheckForRequiredApplications()
+        {
+            if (!VirtualCableExists())
+            {
+                Console.WriteLine("VB Virtual Cable is not installed or is disabled. Please check it before starting.");
+                Environment.Exit(0);
+            }
+            else if (!VoiceVoxOn())
+            {
+                Console.WriteLine("VoiceVox is not installed or is not open. Please check it before starting.");
+                Environment.Exit(0);
+            }
+        }
+
+        private static void InsertAPIKeys()
+        {
+            Console.WriteLine("Enter your OpenAi Audio Transcription API Key");
+            var apiKey = Console.ReadLine();
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {apiKey}");
+            Console.WriteLine("Enter your DeepL API key");
+            apiKey = Console.ReadLine();
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"DeepL-Auth-Key {apiKey}");
         }
     }
 }
