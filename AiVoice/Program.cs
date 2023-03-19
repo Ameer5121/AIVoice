@@ -191,7 +191,8 @@ namespace AiVoice
         private static void InsertAPIKeys()
         {
             Console.WriteLine("Enter your OpenAi Audio Transcription API Key");
-            _openAiAPIKey = Console.ReadLine();           
+            _openAiAPIKey = Console.ReadLine();
+            Console.WriteLine("\n");
             Console.WriteLine("Enter your DeepL API key");
             _deepLAPIKey = Console.ReadLine();
             SaveAPIKeys(_openAiAPIKey, _deepLAPIKey);
@@ -219,9 +220,14 @@ namespace AiVoice
                        var keys = File.ReadAllLines(_keyLocation);
                         _openAiAPIKey = keys[0];
                         _deepLAPIKey = keys[1];
+                        Console.WriteLine("\n");
                         return true;
                     }
-                    else if (input?.ToLower() == "n") return false;
+                    else if (input?.ToLower() == "n")
+                    {
+                        Console.WriteLine("\n");
+                        return false;
+                    }
                 }
             }
             return false;
