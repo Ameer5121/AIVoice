@@ -21,11 +21,15 @@ namespace AiVoice
         private static string _location;
         private static bool _recording;
         private static string _audioFileLocation;
+        private static string _deepLAPIKey;
+        private static string _openAiAPIKey;
+        private static string _keyLocation;
 
         static Program()
         {
             Console.InputEncoding = Encoding.UTF8;
             Console.OutputEncoding = Encoding.UTF8;
+            _keyLocation = "./Keys.txt";
             _audioFileLocation = $"./AiAudio.wav";
             _httpClient = new HttpClient();
             _location = $"{Environment.CurrentDirectory}Temp.wav";
@@ -36,8 +40,8 @@ namespace AiVoice
         }
         static async Task Main(string[] args)
         {
-            CheckForRequiredApplications();
-            InsertAPIKeys();       
+            if (!TryLoadAPIKeys()) InsertAPIKeys();
+            CheckForRequiredApplications();     
             await Start();
         }
 
@@ -86,6 +90,7 @@ namespace AiVoice
 
         private static async Task<string> SpeechToEnglishText(string audioFile)
         {
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {_openAiAPIKey}");
             var bytes = File.ReadAllBytes(audioFile);
             var formData = new MultipartFormDataContent();
             formData.Add(new ByteArrayContent(bytes), "file", "wav");
@@ -104,8 +109,9 @@ namespace AiVoice
 
         private static async Task<string> EnglishToJapaneseText(string text)
         {
+            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"DeepL-Auth-Key {_deepLAPIKey}");
             var dic = new Dictionary<string, string>();
-            dic.Add("target_lang", "ja");
+            dic.Add("target_lang", "JA");
             dic.Add("text", text);
             var response = await _httpClient.PostAsync("https://api-free.deepl.com/v2/translate", new FormUrlEncodedContent(dic));
             if (response.StatusCode != HttpStatusCode.OK) throw new HttpRequestException();
@@ -185,11 +191,39 @@ namespace AiVoice
         private static void InsertAPIKeys()
         {
             Console.WriteLine("Enter your OpenAi Audio Transcription API Key");
-            var apiKey = Console.ReadLine();
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {apiKey}");
+            _openAiAPIKey = Console.ReadLine();           
             Console.WriteLine("Enter your DeepL API key");
-            apiKey = Console.ReadLine();
-            _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"DeepL-Auth-Key {apiKey}");
+            _deepLAPIKey = Console.ReadLine();
+            SaveAPIKeys(_openAiAPIKey, _deepLAPIKey);
+        }
+
+        private static void SaveAPIKeys(string openAiKey, string DeepLKey)
+        {
+            using(var stream = File.CreateText("./Keys.txt"))
+            {
+                stream.WriteLine(openAiKey);
+                stream.WriteLine(DeepLKey);
+            }
+        }
+
+        private static bool TryLoadAPIKeys()
+        {
+            if (File.Exists(_keyLocation))
+            {
+                Console.WriteLine("Would you like to use the previous keys that you have inserted? Y/N ");
+                while (true)
+                {
+                    if (Console.ReadLine()?.ToLower() == "y")
+                    {
+                       var keys = File.ReadAllLines(_keyLocation);
+                        _openAiAPIKey = keys[0];
+                        _deepLAPIKey = keys[1];
+                        return true;
+                    }
+                    else if (Console.ReadLine()?.ToLower() == "n") return false;
+                }
+            }
+            return false;
         }
     }
 }
