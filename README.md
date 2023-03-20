@@ -23,6 +23,11 @@ You're going to have to need to get a couple of API keys to work with this appli
 
 **If you're stuck on any step, feel free to hit me up on Discord(username in profile), and I'll help you set it up.**
 
+# Why do I not see the japanese text on the console
+Console applications by default do not support unicode, so you're going to have use a font that supports unicode. 
+
+Right click the console and go to properties, then head to Font and choose NSimSun and that should display japanese characters
+
 # Using it in Discord/Games
 
 Make sure that whenever you want to use it in Discord/Games is that the microphone is set as the Virtual Cable and not your own microphone.
