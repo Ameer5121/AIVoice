@@ -7,6 +7,10 @@ https://www.youtube.com/watch?v=tyvXOsiatW4
 
 # Installation
 
+Before doing any of the steps, make sure that you have .NET Core installed so that the application can run
+https://dotnet.microsoft.com/en-us/download
+
+
 You're going to have to need to get a couple of API keys to work with this application:
 
 * **Step 1** Head to https://platform.openai.com/account/api-keys and log in/sign up.
