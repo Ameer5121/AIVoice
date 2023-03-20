@@ -18,7 +18,7 @@ namespace AiVoice
         private static AudioFileReader _audioFileWriter;
         private static DirectSoundOut _waveOutEvent;
         private static HttpClient _httpClient;
-        private static string _location;
+        private static string _tempLocation;
         private static bool _recording;
         private static string _audioFileLocation;
         private static string? _deepLAPIKey;
@@ -30,9 +30,9 @@ namespace AiVoice
             Console.InputEncoding = Encoding.UTF8;
             Console.OutputEncoding = Encoding.UTF8;
             _keyLocation = "./Keys.txt";
-            _audioFileLocation = $"./AiAudio.wav";
+            _audioFileLocation = "./AiAudio.wav";
             _httpClient = new HttpClient();
-            _location = $"{Environment.CurrentDirectory}Temp.wav";
+            _tempLocation = "./Temp.wav";
             _waveInEvent = new WaveInEvent();
             _waveOutEvent = new DirectSoundOut(GetCorrectDeviceGuid());
             _waveOutEvent.Volume = 1;
@@ -54,7 +54,7 @@ namespace AiVoice
                 {
                     if (!_recording)
                     {
-                        _waveFileWriter = new WaveFileWriter(_location, _waveInEvent.WaveFormat);
+                        _waveFileWriter = new WaveFileWriter(_tempLocation, _waveInEvent.WaveFormat);
                         _waveInEvent.StartRecording();
                         _recording = true;
                         Console.WriteLine("Recording...");
@@ -68,11 +68,10 @@ namespace AiVoice
                         string japaneseMessage = "";
                         try
                         {
-                            var englishMessage = await SpeechToEnglishText(_location);
+                            var englishMessage = await SpeechToEnglishText(_tempLocation);
                             japaneseMessage = await EnglishToJapaneseText(englishMessage);
                         }catch(HttpRequestException)
-                        {
-                            
+                        {            
                             Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
                             Console.ReadLine();
                             Environment.Exit(1);
@@ -193,10 +192,10 @@ namespace AiVoice
         private static void InsertAPIKeys()
         {
             Console.WriteLine("Enter your OpenAi Audio Transcription API Key");
-            _openAiAPIKey = Console.ReadLine();
+            _openAiAPIKey = Console.ReadLine()!.Replace(" ", "");
             Console.WriteLine("\n");
             Console.WriteLine("Enter your DeepL API key");
-            _deepLAPIKey = Console.ReadLine();
+            _deepLAPIKey = Console.ReadLine()!.Replace(" ", "");
             Console.WriteLine("\n");
             SaveAPIKeys(_openAiAPIKey, _deepLAPIKey);
         }
