@@ -51,10 +51,11 @@ namespace AiVoice
 
         private static async Task Start()
         {
-            Console.WriteLine("You can start recording by pressing L, and stop recording by pressing L again. \n");
+            Console.WriteLine("You can start recording by pressing L, and finish recording by pressing L again.  You can abort the recording by pressing O \n");
             while (true)
             {
-                if (Console.ReadKey(true).Key == ConsoleKey.L)
+                var keycode = Console.ReadKey(true);
+                if (keycode.Key == ConsoleKey.L)
                 {
                     if (!_recording)
                     {
@@ -84,6 +85,12 @@ namespace AiVoice
                         await PlayAudioFile();
                         Console.WriteLine("\n\n");
                     }
+                }else if (keycode.Key == ConsoleKey.O && _recording)
+                {
+                    _waveInEvent.StopRecording();
+                    _waveFileWriter.Dispose();
+                    Console.WriteLine("Aborted Recording");
+                    _recording = false;
                 }
             }
         }
