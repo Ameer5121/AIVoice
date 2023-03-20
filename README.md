@@ -20,6 +20,8 @@ You're going to have to need to get a couple of API keys to work with this appli
 * **Step 8**: Download the application from https://github.com/Sound932/AIVoice/releases
 * **Step 9**: Open up **VOICEVOX**, and then open up the application, enter your API keys, and enjoy the application.
 
+**If you're stuck on any step, feel free to hit me up on Discord(username in profile), and I'll help you set it up.**
+
 # Using it in Discord/Games
 
 Make sure that whenever you want to use it in Discord/Games is that the microphone is set as the Virtual Cable and not your own microphone.
