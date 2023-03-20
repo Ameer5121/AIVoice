@@ -41,9 +41,12 @@ namespace AiVoice
         static async Task Main(string[] args)
         {
             if (!TryLoadAPIKeys()) InsertAPIKeys();
-            CheckForRequiredApplications();     
+            if (!HasRequiredApplications())
+            {
+                Console.ReadLine();
+                return;
+            }    
             await Start();
-            Console.ReadLine();
         }
 
         private static async Task Start()
@@ -176,18 +179,19 @@ namespace AiVoice
             return false;
         }
 
-        private static void CheckForRequiredApplications()
+        private static bool HasRequiredApplications()
         {
             if (!VirtualCableExists())
             {
                 Console.WriteLine("VB Virtual Cable is not installed or is disabled. Please check it before starting.");
-                Environment.Exit(0);
+                return false;
             }
             else if (!VoiceVoxOn())
             {
                 Console.WriteLine("VoiceVox is not installed or is not open. Please check it before starting.");
-                Environment.Exit(0);
+                return false;
             }
+            return true;
         }
 
         private static void InsertAPIKeys()
