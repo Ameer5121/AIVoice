@@ -7,7 +7,7 @@ https://www.youtube.com/watch?v=tyvXOsiatW4
 
 # Installation
 
-Before doing any of the steps, make sure that you have .NET Core 6 SDK installed so that the application can run
+Before doing any of the steps, make sure that you have **.NET Core 6 SDK** installed so that the application can run
 https://dotnet.microsoft.com/en-us/download
 
 
