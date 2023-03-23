@@ -1,13 +1,15 @@
 ﻿using NAudio;
 using NAudio.Wave;
 using System.Net.Http.Headers;
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using System.Net.Http.Json;
 using System.Text;
 using static System.Net.Mime.MediaTypeNames;
 using System.Net;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Windows;
 
 namespace AiVoice
 {
@@ -38,6 +40,9 @@ namespace AiVoice
             _waveOutEvent.Volume = 1;
             _waveInEvent.DataAvailable += WriteData;
         }
+        [DllImport("User32.dll")]
+        private static extern short GetAsyncKeyState(int vKey);
+
         static async Task Main(string[] args)
         {
             if (!TryLoadAPIKeys()) InsertAPIKeys();
@@ -45,7 +50,7 @@ namespace AiVoice
             {
                 Console.ReadLine();
                 return;
-            }    
+            }
             await Start();
         }
 
@@ -54,31 +59,38 @@ namespace AiVoice
             Console.WriteLine("You can start recording by pressing L, and finish recording by pressing L again.  You can abort the recording by pressing O \n");
             while (true)
             {
-                var keycode = Console.ReadKey(true);
-                if (keycode.Key == ConsoleKey.L)
+                for (int x = 0; x < 255; x++)
                 {
-                    if (!_recording) InitiateRecord();
-                    else
+                    var keyState = GetAsyncKeyState(x);
+                    var key = (Keys)x;
+                    if (keyState != 0)
                     {
-                        FinishRecording();
-                        string japaneseMessage = "";
-                        try
+                        if (key == Keys.L)
                         {
-                            var englishMessage = await SpeechToEnglishText(_tempLocation);
-                            japaneseMessage = await EnglishToJapaneseText(englishMessage);
+                            if (!_recording) InitiateRecord();
+                            else
+                            {
+                                FinishRecording();
+                                string japaneseMessage = "";
+                                try
+                                {
+                                    var englishMessage = await SpeechToEnglishText(_tempLocation);
+                                    japaneseMessage = await EnglishToJapaneseText(englishMessage);
+                                }
+                                catch (HttpRequestException)
+                                {
+                                    Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
+                                    Console.ReadLine();
+                                    Environment.Exit(1);
+                                }
+                                await GetAudioFile(japaneseMessage);
+                                await PlayAudioFile();
+                                Console.WriteLine("\n\n");
+                            }
                         }
-                        catch (HttpRequestException)
-                        {
-                            Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
-                            Console.ReadLine();
-                            Environment.Exit(1);
-                        }
-                        await GetAudioFile(japaneseMessage);
-                        await PlayAudioFile();
-                        Console.WriteLine("\n\n");
+                        else if (key == Keys.O && _recording) AbortRecording();
                     }
                 }
-                else if (keycode.Key == ConsoleKey.O && _recording) AbortRecording();
             }
         }
 
@@ -87,6 +99,7 @@ namespace AiVoice
             _waveFileWriter = new WaveFileWriter(_tempLocation, _waveInEvent.WaveFormat);
             _waveInEvent.StartRecording();
             _recording = true;
+            Console.Beep();
             Console.WriteLine("Recording...");
         }
 
@@ -95,6 +108,7 @@ namespace AiVoice
             _waveInEvent.StopRecording();
             _recording = false;
             Console.WriteLine("Recording Stopped.");
+            Console.Beep();
             _waveFileWriter.Dispose();
         }
 
@@ -224,7 +238,7 @@ namespace AiVoice
 
         private static void SaveAPIKeys(string? openAiKey, string? DeepLKey)
         {
-            using(var stream = File.CreateText("./Keys.txt"))
+            using (var stream = File.CreateText("./Keys.txt"))
             {
                 stream.WriteLine(openAiKey);
                 stream.WriteLine(DeepLKey);
@@ -241,7 +255,7 @@ namespace AiVoice
                     var input = Console.ReadLine();
                     if (input?.ToLower() == "y")
                     {
-                       var keys = File.ReadAllLines(_keyLocation);
+                        var keys = File.ReadAllLines(_keyLocation);
                         _openAiAPIKey = keys[0];
                         _deepLAPIKey = keys[1];
                         Console.WriteLine("\n");
