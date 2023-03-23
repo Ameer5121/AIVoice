@@ -57,26 +57,18 @@ namespace AiVoice
                 var keycode = Console.ReadKey(true);
                 if (keycode.Key == ConsoleKey.L)
                 {
-                    if (!_recording)
-                    {
-                        _waveFileWriter = new WaveFileWriter(_tempLocation, _waveInEvent.WaveFormat);
-                        _waveInEvent.StartRecording();
-                        _recording = true;
-                        Console.WriteLine("Recording...");
-                    }
+                    if (!_recording) InitiateRecord();
                     else
                     {
-                        _waveInEvent.StopRecording();
-                        _recording = false;
-                        Console.WriteLine("Recording Stopped.");
-                        _waveFileWriter.Dispose();
+                        FinishRecording();
                         string japaneseMessage = "";
                         try
                         {
                             var englishMessage = await SpeechToEnglishText(_tempLocation);
                             japaneseMessage = await EnglishToJapaneseText(englishMessage);
-                        }catch(HttpRequestException)
-                        {            
+                        }
+                        catch (HttpRequestException)
+                        {
                             Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
                             Console.ReadLine();
                             Environment.Exit(1);
@@ -85,16 +77,34 @@ namespace AiVoice
                         await PlayAudioFile();
                         Console.WriteLine("\n\n");
                     }
-                }else if (keycode.Key == ConsoleKey.O && _recording)
-                {
-                    _waveInEvent.StopRecording();
-                    _waveFileWriter.Dispose();
-                    Console.WriteLine("Aborted Recording");
-                    _recording = false;
                 }
+                else if (keycode.Key == ConsoleKey.O && _recording) AbortRecording();
             }
         }
 
+        private static void InitiateRecord()
+        {
+            _waveFileWriter = new WaveFileWriter(_tempLocation, _waveInEvent.WaveFormat);
+            _waveInEvent.StartRecording();
+            _recording = true;
+            Console.WriteLine("Recording...");
+        }
+
+        private static void FinishRecording()
+        {
+            _waveInEvent.StopRecording();
+            _recording = false;
+            Console.WriteLine("Recording Stopped.");
+            _waveFileWriter.Dispose();
+        }
+
+        private static void AbortRecording()
+        {
+            _waveInEvent.StopRecording();
+            _waveFileWriter.Dispose();
+            Console.WriteLine("Aborted Recording");
+            _recording = false;
+        }
         private static void WriteData(object? sender, WaveInEventArgs e)
         {
             _waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
