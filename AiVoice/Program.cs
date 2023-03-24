@@ -212,27 +212,21 @@ namespace AiVoice
         private static void SetVoice()
         {
             _inSettings = true;
-            string charName = _voice switch
-            {
-                1 => _characters[0],
-                11 => _characters[1],
-                13 => _characters[2],
-                20 => _characters[3],
-            };
-            Console.WriteLine($"Current voice is {charName}");
+            string? input = "";
+            int id = 0;
+            Console.WriteLine($"Current voice is {_characters[_voice]}");
             Console.WriteLine("_______________________________________\n");
             Console.WriteLine("All of the avaliable characters are listed below. Please type the ID of the character you want to use.\n");
             foreach (var character in _characters) Console.WriteLine($"{character.Key}:  {character.Value}");
             Console.WriteLine();
-            string? input = "";
-            int id = 0;
+            ClearConsoleBuffer();
             do
-            {
+            {               
                 input = Console.ReadLine();
             } while (!int.TryParse(input, out id) || !_characters.Any(x => x.Key == id));
             _voice = id;
             _inSettings = false;
-            Console.WriteLine($"Sucessfully changed voice to {charName} \n\n");
+            Console.WriteLine($"Sucessfully changed voice to {_characters[_voice]} \n\n");
         }
 
         private static Guid GetCorrectDeviceGuid()
@@ -312,6 +306,12 @@ namespace AiVoice
                 }
             }
             return false;
+        }
+
+        private static void ClearConsoleBuffer()
+        {
+            while (Console.KeyAvailable)
+                Console.ReadKey(true);
         }
     }
 }
