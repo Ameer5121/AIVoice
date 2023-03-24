@@ -22,11 +22,13 @@ namespace AiVoice
         private static HttpClient _httpClient;
         private static string _tempLocation;
         private static bool _recording;
+        private static bool _inSettings;
         private static string _audioFileLocation;
         private static string? _deepLAPIKey;
         private static string? _openAiAPIKey;
         private static string _keyLocation;
         private static int _voice = 11;
+        private static Dictionary<int, string> _characters;
 
         static Program()
         {
@@ -40,6 +42,13 @@ namespace AiVoice
             _waveOutEvent = new DirectSoundOut(GetCorrectDeviceGuid());
             _waveOutEvent.Volume = 1;
             _waveInEvent.DataAvailable += WriteData;
+            _characters = new Dictionary<int, string>
+            {
+                {1, "Zundamon (Female)" },
+                {11, "Takehiro Kurono (Male)"},
+                {13, "Ryuusei Aoyama (Male)"},
+                {20, "Mochiko (Female)"},
+            };
         }
         [DllImport("User32.dll")]
         private static extern short GetAsyncKeyState(int vKey);
@@ -66,7 +75,6 @@ namespace AiVoice
                     var key = (Keys)x;
                     if (keyState != 0)
                     {
-
                         if (key == Keys.L)
                         {
                             if (!_recording) InitiateRecord();
@@ -91,7 +99,7 @@ namespace AiVoice
                             }
                         }
                         else if (key == Keys.O && _recording) AbortRecording();
-                        else if (key == Keys.V && !_recording) SetVoice();
+                        else if (key == Keys.V && !_recording && !_inSettings) SetVoice();
                     }
                 }
             }
@@ -103,7 +111,7 @@ namespace AiVoice
             Console.WriteLine("1. You can start recording by pressing L, and finish recording by pressing L again.\n");
             Console.WriteLine("2. You can abort the recording by pressing O\n");
             Console.WriteLine("3. You can change the Ai's voice by pressing V");
-            Console.WriteLine("_____________________________________________________________________________");
+            Console.WriteLine("_____________________________________________________________________________\n");
         }
 
         private static void InitiateRecord()
@@ -203,14 +211,28 @@ namespace AiVoice
 
         private static void SetVoice()
         {
+            _inSettings = true;
             string charName = _voice switch
             {
-                1 => "Zundamon (Female)",
-                11 => "Takehiro Kurono (Male)",
-                13 => "Ryuusei Aoyama (Male)",
-                20 => "Mochiko (Female)",
+                1 => _characters[0],
+                11 => _characters[1],
+                13 => _characters[2],
+                20 => _characters[3],
             };
             Console.WriteLine($"Current voice is {charName}");
+            Console.WriteLine("_______________________________________\n");
+            Console.WriteLine("All of the avaliable characters are listed below. Please type the ID of the character you want to use.\n");
+            foreach (var character in _characters) Console.WriteLine($"{character.Key}:  {character.Value}");
+            Console.WriteLine();
+            string? input = "";
+            int id = 0;
+            do
+            {
+                input = Console.ReadLine();
+            } while (!int.TryParse(input, out id) || !_characters.Any(x => x.Key == id));
+            _voice = id;
+            _inSettings = false;
+            Console.WriteLine($"Sucessfully changed voice to {charName} \n\n");
         }
 
         private static Guid GetCorrectDeviceGuid()
