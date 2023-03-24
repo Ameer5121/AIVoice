@@ -5,6 +5,9 @@ English voice to Japanese Ai Voice for Discord/Games.
 https://www.youtube.com/watch?v=tyvXOsiatW4
 
 
+![image](https://user-images.githubusercontent.com/71935713/227421387-932b8a50-5417-4010-8794-f7e7051cb295.png)
+
+
 # Installation
 
 Before doing any of the steps, make sure that you have **.NET Core 6 SDK** installed so that the application can run
