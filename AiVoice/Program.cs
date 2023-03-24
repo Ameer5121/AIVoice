@@ -26,6 +26,7 @@ namespace AiVoice
         private static string? _deepLAPIKey;
         private static string? _openAiAPIKey;
         private static string _keyLocation;
+        private static int _voice = 11;
 
         static Program()
         {
@@ -56,7 +57,7 @@ namespace AiVoice
 
         private static async Task Start()
         {
-            Console.WriteLine("You can start recording by pressing L, and finish recording by pressing L again.  You can abort the recording by pressing O \n");
+            InitiateIntroduction();
             while (true)
             {
                 for (int x = 0; x < 255; x++)
@@ -65,6 +66,7 @@ namespace AiVoice
                     var key = (Keys)x;
                     if (keyState != 0)
                     {
+
                         if (key == Keys.L)
                         {
                             if (!_recording) InitiateRecord();
@@ -80,18 +82,28 @@ namespace AiVoice
                                 catch (HttpRequestException)
                                 {
                                     Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
-                                    Console.ReadLine();
+                                    Console.ReadKey(true);
                                     Environment.Exit(1);
                                 }
-                                await GetAudioFile(japaneseMessage);
+                                await GetAudioFile(japaneseMessage, _voice);
                                 await PlayAudioFile();
                                 Console.WriteLine("\n\n");
                             }
                         }
                         else if (key == Keys.O && _recording) AbortRecording();
+                        else if (key == Keys.V && !_recording) SetVoice();
                     }
                 }
             }
+        }
+
+        private static void InitiateIntroduction()
+        {
+            Console.WriteLine("_____________________________________________________________________________");
+            Console.WriteLine("1. You can start recording by pressing L, and finish recording by pressing L again.\n");
+            Console.WriteLine("2. You can abort the recording by pressing O\n");
+            Console.WriteLine("3. You can change the Ai's voice by pressing V");
+            Console.WriteLine("_____________________________________________________________________________");
         }
 
         private static void InitiateRecord()
@@ -167,14 +179,11 @@ namespace AiVoice
             return messageModel.translations[0].text;
         }
 
-        private static async Task GetAudioFile(string japaneseText)
+        private static async Task GetAudioFile(string japaneseText, int speaker)
         {
-            var dic = new Dictionary<string, string>();
-            dic.Add("text", japaneseText);
-            dic.Add("speaker", "1");
-            var queryResponse = await _httpClient.PostAsync($"http://localhost:50021/audio_query?text={japaneseText}&speaker=1", null);
+            var queryResponse = await _httpClient.PostAsync($"http://localhost:50021/audio_query?text={japaneseText}&speaker={speaker}", null);
             var queryJson = await queryResponse.Content.ReadAsStringAsync();
-            var audioResponse = await _httpClient.PostAsync($"http://localhost:50021/synthesis?speaker=1", new StringContent(queryJson, Encoding.UTF8, "application/json"));
+            var audioResponse = await _httpClient.PostAsync($"http://localhost:50021/synthesis?speaker={speaker}", new StringContent(queryJson, Encoding.UTF8, "application/json"));
             using (FileStream stream = new FileStream(_audioFileLocation, FileMode.Create, FileAccess.Write))
             {
                 var buffer = await audioResponse.Content.ReadAsByteArrayAsync();
@@ -190,6 +199,18 @@ namespace AiVoice
                 _waveOutEvent.Play();
                 await Task.Delay(_audioFileWriter.TotalTime);
             }
+        }
+
+        private static void SetVoice()
+        {
+            string charName = _voice switch
+            {
+                1 => "Zundamon (Female)",
+                11 => "Takehiro Kurono (Male)",
+                13 => "Ryuusei Aoyama (Male)",
+                20 => "Mochiko (Female)",
+            };
+            Console.WriteLine($"Current voice is {charName}");
         }
 
         private static Guid GetCorrectDeviceGuid()
