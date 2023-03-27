@@ -34,7 +34,12 @@ You're going to have to need to get a couple of API keys to work with this appli
 **If you're stuck on any step, feel free to hit me up on Discord(username in profile), and I'll help you set it up.**
 
 # Usage Without DeepL
-If you can't use DeepL for the fact that it's not avaliable in your country, there will be a separate release that uses a different api than DeepL. It doesn't have DeepL **informal Japanese** translation quality, but it has good **informal Japanese** translation quality that it shouldn't be a problem/noticeable.
+If you can't use DeepL for the fact that it's not avaliable in your country, follow these steps below:
+
+* **Step 1** - Head to https://www.translate.com/users/customer_create and create an account.
+* **Step 2** - Save your credentials because you're going to need them when you open the application.
+
+It doesn't have DeepL's **informal Japanese** translation quality, but it has 70-80% of the translation quality that it shouldn't be a problem/noticeable.
 
 
 # Why do I not see Japanese text on the console
