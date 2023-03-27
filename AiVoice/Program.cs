@@ -278,9 +278,9 @@ namespace AiVoice
 
         private static async Task<string> GetTranslationBearerToken()
         {
-            Console.WriteLine("Enter your Translation API email");
+            Console.WriteLine("Enter your Translation API Email");
             var email = Console.ReadLine()!.Replace(" ", "");
-            Console.WriteLine("\nEnter your Translation API password");
+            Console.WriteLine("\nEnter your Translation API Password");
             var password = Console.ReadLine()!.Replace(" ", "");
             var credentials = new
             {
