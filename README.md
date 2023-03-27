@@ -22,7 +22,7 @@ You're going to have to need to get a couple of API keys to work with this appli
 * **Step 3** Head to https://www.deepl.com/pro-api?cta=header-pro-api/ and click "Sign Up For Free".
 * **Step 4** Obtain your API Key **and save it because you will need it when you use the application for the first time.**
 
-**IMPORTANT:** If you can't use DeepL since it's not avaliable in your country, head to the **Usage Without DeepL** section before continuing the steps.
+**IMPORTANT:** If you can't use DeepL since it's not avaliable in your country or the fact that it needs a credit card for registration, head to the **Usage Without DeepL** section for a really simple installation before continuing the steps.
 
 * **Step 5**: Install **Virtual Cable** from https://vb-audio.com/Cable/
 * **Step 6**: Open your Sound settings and go to Recording. Select the **Virtual Cable**, and click Properties. Click the listen tab, and check "Listen to this Device" and make sure that "Playback through this device" is selected as your headphones/speakers.
@@ -41,6 +41,8 @@ If you can't use DeepL for the fact that it's not avaliable in your country, fol
 
 It doesn't have DeepL's **informal Japanese** translation quality, but it has 70-80% of the translation quality that it shouldn't be a problem/noticeable.
 
+# Why DeepL?
+DeepL has hands down the best English to Japanese translation, and that's why it is the main API for this application. The other option that is mentioned has 70-80% of the translation quality as DeepL, and is good enough for most cases.
 
 # Why do I not see Japanese text on the console
 Console applications by default use a font that doesn't support unicode, so you're going to have use a font that supports unicode. 
