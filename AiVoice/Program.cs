@@ -24,8 +24,8 @@ namespace AiVoice
         private static bool _recording;
         private static bool _inSettings;
         private static string _audioFileLocation;
-        private static string? _deepLAPIKey;
-        private static string? _openAiAPIKey;
+        private static string? _translationBearerToken;
+        private static string? _openAiBearerToken;
         private static string _keyLocation;
         private static int _voice = 11;
         private static Dictionary<int, string> _characters;
@@ -55,7 +55,7 @@ namespace AiVoice
 
         static async Task Main(string[] args)
         {
-            if (!TryLoadAPIKeys()) InsertAPIKeys();
+            if (!TryLoadAPIKeys()) await InsertCredentials();
             if (!HasRequiredApplications())
             {
                 Console.ReadLine();
@@ -87,12 +87,7 @@ namespace AiVoice
                                     var englishMessage = await SpeechToEnglishText(_tempLocation);
                                     japaneseMessage = await EnglishToJapaneseText(englishMessage);
                                 }
-                                catch (HttpRequestException)
-                                {
-                                    Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
-                                    Console.ReadKey(true);
-                                    Environment.Exit(1);
-                                }
+                                catch (HttpRequestException) { DisplayError("API keys"); }
                                 await GetAudioFile(japaneseMessage, _voice);
                                 await PlayAudioFile();
                                 Console.WriteLine("\n\n");
@@ -146,7 +141,7 @@ namespace AiVoice
 
         private static async Task<string> SpeechToEnglishText(string audioFile)
         {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAiAPIKey);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAiBearerToken);
             var bytes = File.ReadAllBytes(audioFile);
             var formData = new MultipartFormDataContent();
             formData.Add(new ByteArrayContent(bytes), "file", "wav");
@@ -165,26 +160,31 @@ namespace AiVoice
 
         private static async Task<string> EnglishToJapaneseText(string text)
         {
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("DeepL-Auth-Key", _deepLAPIKey);
-            var dic = new Dictionary<string, string>();
-            dic.Add("target_lang", "JA");
-            dic.Add("text", text);
-            var response = await _httpClient.PostAsync("https://api-free.deepl.com/v2/translate", new FormUrlEncodedContent(dic));
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _translationBearerToken);
+            var translationRequest = new
+            {
+                text = text,
+                source_language = "en",
+                translation_language = "ja",
+            };
+            var httpRequestMessage = new HttpRequestMessage
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(translationRequest), Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var response = await _httpClient.PostAsync("https://api.translate.com/translate/v1/mt", httpRequestMessage.Content);
             if (response.StatusCode != HttpStatusCode.OK) throw new HttpRequestException();
             var japaneseText = await response.Content.ReadAsStringAsync();
-            var messageModel = new
+            var translationModel = new
             {
-                translations = new[]
+                data = new
                 {
-                   new
-                   {
-                       text = ""
-                   }
+                    translation = ""
                 }
             };
-            messageModel = JsonConvert.DeserializeAnonymousType(japaneseText, messageModel);
-            Console.WriteLine(messageModel!.translations[0].text);
-            return messageModel.translations[0].text;
+            translationModel = JsonConvert.DeserializeAnonymousType(japaneseText, translationModel);
+            Console.WriteLine(translationModel!.data.translation);
+            return translationModel.data.translation;
         }
 
         private static async Task GetAudioFile(string japaneseText, int speaker)
@@ -221,7 +221,7 @@ namespace AiVoice
             Console.WriteLine();
             ClearConsoleBuffer();
             do
-            {               
+            {
                 input = Console.ReadLine();
             } while (!int.TryParse(input, out id) || !_characters.Any(x => x.Key == id));
             _voice = id;
@@ -262,15 +262,47 @@ namespace AiVoice
             return true;
         }
 
-        private static void InsertAPIKeys()
+        private static async Task InsertCredentials()
         {
             Console.WriteLine("Enter your OpenAi Audio Transcription API Key");
-            _openAiAPIKey = Console.ReadLine()!.Replace(" ", "");
+            _openAiBearerToken = Console.ReadLine()!.Replace(" ", "");
             Console.WriteLine("\n");
-            Console.WriteLine("Enter your DeepL API key");
-            _deepLAPIKey = Console.ReadLine()!.Replace(" ", "");
+
+            var token = "";
+            try { token = await GetTranslationBearerToken(); }
+            catch (HttpRequestException) { DisplayError("credentials"); }
+            _translationBearerToken = token;
             Console.WriteLine("\n");
-            SaveAPIKeys(_openAiAPIKey, _deepLAPIKey);
+            SaveAPIKeys(_openAiBearerToken, _translationBearerToken);
+        }
+
+        private static async Task<string> GetTranslationBearerToken()
+        {
+            Console.WriteLine("Enter your Translation API email");
+            var email = Console.ReadLine()!.Replace(" ", "");
+            Console.WriteLine("\nEnter your Translation API password");
+            var password = Console.ReadLine()!.Replace(" ", "");
+            var credentials = new
+            {
+                email = email,
+                password = password,
+            };
+            var httpRequestMessage = new HttpRequestMessage
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(credentials), Encoding.UTF8, "application/json")
+            };
+            httpRequestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            var response = await _httpClient.PostAsync("https://api.translate.com/translate/v1/login", httpRequestMessage.Content);
+            if (response.StatusCode != HttpStatusCode.OK) throw new HttpRequestException();
+            var responseObject = new
+            {
+                data = new
+                {
+                    token = ""
+                }
+            };
+            responseObject = JsonConvert.DeserializeAnonymousType(await response.Content.ReadAsStringAsync(), responseObject);
+            return responseObject!.data.token;
         }
 
         private static void SaveAPIKeys(string? openAiKey, string? DeepLKey)
@@ -293,8 +325,8 @@ namespace AiVoice
                     if (input?.ToLower() == "y")
                     {
                         var keys = File.ReadAllLines(_keyLocation);
-                        _openAiAPIKey = keys[0];
-                        _deepLAPIKey = keys[1];
+                        _openAiBearerToken = keys[0];
+                        _translationBearerToken = keys[1];
                         Console.WriteLine("\n");
                         return true;
                     }
@@ -306,6 +338,13 @@ namespace AiVoice
                 }
             }
             return false;
+        }
+
+        private static void DisplayError(string subject)
+        {
+            Console.WriteLine($"An unexpected error has occured. Please make sure that the {subject} that you have inserted are correct");
+            Console.ReadKey(true);
+            Environment.Exit(1);
         }
 
         private static void ClearConsoleBuffer()
