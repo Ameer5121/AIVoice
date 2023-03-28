@@ -139,10 +139,7 @@ namespace AiVoice
             Console.WriteLine("Aborted Recording");
             _recording = false;
         }
-        private static void WriteData(object? sender, WaveInEventArgs e)
-        {
-            _waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
-        }
+        private static void WriteData(object? sender, WaveInEventArgs e) => _waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
 
         private static async Task<string> SpeechToEnglishText(string audioFile)
         {
@@ -233,9 +230,7 @@ namespace AiVoice
         {
             var devices = DirectSoundOut.Devices;
             foreach (var device in devices)
-            {
                 if (device.Description == "CABLE Input (VB-Audio Virtual Cable)") return device.Guid;
-            }
             return Guid.Empty;
         }
 
