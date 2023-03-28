@@ -237,8 +237,7 @@ namespace AiVoice
         private static bool VirtualCableExists() => GetCorrectDeviceGuid() == Guid.Empty ? false : true;
         private static bool VoiceVoxOn()
         {
-            var processes = Process.GetProcesses();
-            foreach (var process in processes) if (process.ProcessName == "VOICEVOX") return true;
+            foreach (var process in Process.GetProcesses()) if (process.ProcessName == "VOICEVOX") return true;
             return false;
         }
 
