@@ -25,7 +25,7 @@ You're going to have to need to get a couple of API keys to work with this appli
 **IMPORTANT:** If you can't use DeepL since it's not avaliable in your country or the fact that it needs a credit card for registration, head to the **Usage Without DeepL** section for a really simple installation before continuing the steps.
 
 * **Step 5**: Install **Virtual Cable** from https://vb-audio.com/Cable/
-* **Step 6**: Open your Sound settings and go to Recording. Select the **Virtual Cable**, and click Properties. Click the listen tab, and check "Listen to this Device" and make sure that "Playback through this device" is selected as your headphones/speakers.
+* **Step 6**: On the right side of the taskbar, right click on your sound icon and click "Sounds". Head to Recording, and select the **Virtual Cable**. Click Properties, and then lick the listen tab. Check "Listen to this Device" and make sure that "Playback through this device" is selected as your headphones/speakers.
 * **Step 7**: Make sure that your microphone is set as the Default Device and your speaker/headphones as well.
 * **Step 8**: Download VoiceVox from https://voicevox.hiroshiba.jp/
 * **Step 9**: Download the application from https://github.com/Sound932/AIVoice/releases
