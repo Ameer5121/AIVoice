@@ -67,8 +67,7 @@ namespace AiVoice
         private static async Task Start()
         {
             InitiateIntroduction();
-            //0x4C
-            GetAsyncKeyState(76); // Hotfix for any L inputs before this method starts.
+            ClearInputs();
             while (true)
             {
                 for (int x = 0; x < 255; x++)
@@ -226,6 +225,7 @@ namespace AiVoice
             _voice = id;
             _inSettings = false;
             Console.WriteLine($"Sucessfully changed voice to {_characters[_voice]} \n\n");
+            ClearInputs();
         }
 
         private static Guid GetCorrectDeviceGuid()
@@ -347,6 +347,11 @@ namespace AiVoice
         {
             while (Console.KeyAvailable)
                 Console.ReadKey(true);
+        }
+        private static void ClearInputs()
+        {
+            GetAsyncKeyState(0x4C); // Hotfix for any L/V inputs during settings/etc.
+            GetAsyncKeyState(0x56); // ...
         }
     }
 }
