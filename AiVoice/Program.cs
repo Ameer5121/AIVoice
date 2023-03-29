@@ -86,6 +86,7 @@ namespace AiVoice
                                 try
                                 {
                                     var englishMessage = await SpeechToEnglishText(_tempLocation);
+                                    if (string.IsNullOrEmpty(englishMessage)) continue;
                                     japaneseMessage = await EnglishToJapaneseText(englishMessage);
                                 }
                                 catch (HttpRequestException) { DisplayError("API keys"); }
