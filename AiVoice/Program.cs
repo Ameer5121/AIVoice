@@ -67,6 +67,8 @@ namespace AiVoice
         private static async Task Start()
         {
             InitiateIntroduction();
+            //0x4C
+            GetAsyncKeyState(76); // Hotfix for any L inputs before this method starts.
             while (true)
             {
                 for (int x = 0; x < 255; x++)
