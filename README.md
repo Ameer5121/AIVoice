@@ -38,7 +38,7 @@ You're going to have to need to get a couple of API keys to work with this appli
 
 
 
-* **Step 8**: Download VoiceVox from https://voicevox.hiroshiba.jp/
+* **Step 8**: Download VoiceVox from https://voicevox.hiroshiba.jp/. Open it, and leave it in the background.
 * **Step 9**: Download the application from https://github.com/Sound932/AIVoice/releases
 * **Step 10**: Open up **VOICEVOX**, and then open up the application, enter your API keys, and enjoy the application.
 
