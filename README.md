@@ -29,7 +29,7 @@ You're going to have to need to get a couple of API keys to work with this appli
 
 ![image](https://user-images.githubusercontent.com/71935713/229618860-f7904bd0-be4b-43c1-8182-616b16ae05e7.png)
 
- Select **Virtual Cable**, and then click Properties. Head to the Listen tab, and then check "Listen to this Device", and make sure that "Playback through this device" is selected as your headphones/speakers.
+ Select **Virtual Cable**, and then click Properties. Head to the Listen tab, and then check "Listen to this Device". Make sure that "Playback through this device" is selected as your headphones/speakers.
  
 ![image](https://user-images.githubusercontent.com/71935713/229619239-6d8ce6dd-cd4b-4485-8297-dae608ad4c52.png)
 
