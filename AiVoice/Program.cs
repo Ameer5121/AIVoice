@@ -340,7 +340,7 @@ namespace AiVoice
         private static void DisplayError(string subject)
         {
             Console.WriteLine($"An unexpected error has occured. Please make sure that the {subject} that you have inserted are correct");
-            Console.ReadKey(true);
+            Console.ReadLine();
             Environment.Exit(1);
         }
 
