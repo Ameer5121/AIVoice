@@ -92,7 +92,7 @@ namespace AiVoice
                                 catch (HttpRequestException)
                                 {
                                     Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
-                                    Console.ReadKey(true);
+                                    Console.ReadLine();
                                     Environment.Exit(1);
                                 }
                                 await GetAudioFile(japaneseMessage, _voice);
