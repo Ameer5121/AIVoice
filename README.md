@@ -25,9 +25,20 @@ You're going to have to need to get a couple of API keys to work with this appli
 **IMPORTANT:** If you can't use DeepL since it's not avaliable in your country or the fact that it needs a credit card for registration, head to the **Usage Without DeepL** section for a really simple installation before continuing the steps.
 
 * **Step 5**: Install **Virtual Cable** from https://vb-audio.com/Cable/
-* **Step 6**: On the right side of the taskbar, right click on your sound icon and click "Sounds". Head to Recording, and select the **Virtual Cable**. Click Properties, and then click the listen tab. Check "Listen to this Device" and make sure that "Playback through this device" is selected as your headphones/speakers.
-* **Step 7**: Make sure that your microphone is set as the Default Device and your speaker/headphones as well.
-* **Step 8**: Download VoiceVox from https://voicevox.hiroshiba.jp/
+* **Step 6**: On the right side of the taskbar, right click on your sound icon and click "Sounds", and then head to the Recording tab.
+
+![image](https://user-images.githubusercontent.com/71935713/229618860-f7904bd0-be4b-43c1-8182-616b16ae05e7.png)
+
+ Select **Virtual Cable**, and then click Properties. Head to the Listen tab, and then check "Listen to this Device". Make sure that "Playback through this device" is selected as your headphones/speakers.
+ 
+![image](https://user-images.githubusercontent.com/71935713/229619239-6d8ce6dd-cd4b-4485-8297-dae608ad4c52.png)
+
+* **Step 7**: Make sure that your microphone is set as the Default Device as well as your speakers/headphones.
+![image](https://user-images.githubusercontent.com/71935713/229619532-810da69b-a95d-4b68-bc42-08730a5e7b7d.png) ![image](https://user-images.githubusercontent.com/71935713/229618860-f7904bd0-be4b-43c1-8182-616b16ae05e7.png)
+
+
+
+* **Step 8**: Download VoiceVox from https://voicevox.hiroshiba.jp/. Open it, and leave it in the background.
 * **Step 9**: Download the application from https://github.com/Sound932/AIVoice/releases
 * **Step 10**: Open up **VOICEVOX**, and then open up the application, enter your API keys, and enjoy the application.
 
