@@ -89,7 +89,7 @@ namespace AiVoice
                                     if (string.IsNullOrEmpty(englishMessage)) continue;
                                     japaneseMessage = await EnglishToJapaneseText(englishMessage);
                                 }
-                                catch (HttpRequestException) { DisplayError("API keys"); }
+                                catch (HttpRequestException) { DisplayError("An unexpected error has occured. Please make sure that the API Keys that you have inserted are correct, or that there is enough usage in your account.");}
                                 await GetAudioFile(japaneseMessage, _voice);
                                 await PlayAudioFile();
                                 Console.WriteLine("\n\n");
@@ -267,7 +267,7 @@ namespace AiVoice
 
             var token = "";
             try { token = await GetTranslationBearerToken(); }
-            catch (HttpRequestException) { DisplayError("credentials"); }
+            catch (HttpRequestException) { DisplayError("An unexpected error has occured. Please make sure that the credentials that you have inserted are correct, or that there is enough usage in your account."); }
             _translationBearerToken = token;
             Console.WriteLine("\n");
             SaveAPIKeys(_openAiBearerToken, _translationBearerToken);
@@ -337,9 +337,9 @@ namespace AiVoice
             return false;
         }
 
-        private static void DisplayError(string subject)
+        private static void DisplayError(string message)
         {
-            Console.WriteLine($"An unexpected error has occured. Please make sure that the {subject} that you have inserted are correct");
+            Console.WriteLine(message);
             Console.ReadLine();
             Environment.Exit(1);
         }
