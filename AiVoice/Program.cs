@@ -91,7 +91,7 @@ namespace AiVoice
                                 }
                                 catch (HttpRequestException)
                                 {
-                                    Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct");
+                                    Console.WriteLine("An unexpected error has occured. Please make sure that the API keys that you inserted are correct, or that there is enough usage in your account.");
                                     Console.ReadLine();
                                     Environment.Exit(1);
                                 }
