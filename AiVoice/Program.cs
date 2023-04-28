@@ -44,6 +44,7 @@ namespace AiVoice
             _waveInEvent.DataAvailable += WriteData;
             _characters = new Dictionary<int, string>
             {
+                {0, "Shikoku Metan (Female)" },
                 {1, "Zundamon (Female)" },
                 {11, "Takehiro Kurono (Male)"},
                 {13, "Ryuusei Aoyama (Male)"},
