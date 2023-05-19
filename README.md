@@ -50,7 +50,7 @@ If you can't use DeepL for the fact that it's not avaliable in your country, fol
 * **Step 1** - Head to https://www.translate.com/users/customer_create and create an account.
 * **Step 2** - Save your credentials because you're going to need them when you open the application.
 
-It doesn't have DeepL's **informal Japanese** translation quality, but it has 70-80% of the translation quality that it shouldn't be a problem/noticeable.
+It doesn't have DeepL's **informal Japanese** translation quality, but it has 70-80% of the translation quality that it shouldn't be a problem/noticeable. It's nowhere near as bad as Google Translate's quality.
 
 # Why DeepL?
 DeepL has hands down the best English to Japanese translation, and that's why it is the main API for this application. The other option that is mentioned has 70-80% of the translation quality as DeepL, and is good enough for most cases.
