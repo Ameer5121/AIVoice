@@ -10,6 +10,8 @@ using System.Net;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace AiVoice
 {
@@ -28,12 +30,14 @@ namespace AiVoice
         private static string? _openAiBearerToken;
         private static string _keyLocation;
         private static int _voice = 11;
+        private static LanguageCode _recordingLanguage;
         private static Dictionary<int, string> _characters;
 
         static Program()
         {
             Console.InputEncoding = Encoding.UTF8;
             Console.OutputEncoding = Encoding.UTF8;
+            _recordingLanguage = LanguageCode.en;
             _keyLocation = "./Keys.txt";
             _audioFileLocation = "./AiAudio.wav";
             _httpClient = new HttpClient();
@@ -86,9 +90,9 @@ namespace AiVoice
                                 string japaneseMessage = "";
                                 try
                                 {
-                                    var englishMessage = await SpeechToEnglishText(_tempLocation);
+                                    var englishMessage = await SpeechToText(_tempLocation);
                                     if (string.IsNullOrEmpty(englishMessage)) continue;
-                                    japaneseMessage = await EnglishToJapaneseText(englishMessage);
+                                    japaneseMessage = await TextToJapaneseText(englishMessage);
                                 }
                                 catch (HttpRequestException) { DisplayError("An unexpected error has occured. Please make sure that the API Keys that you have inserted are correct, or that there is enough usage in your account.");}
                                 await GetAudioFile(japaneseMessage, _voice);
@@ -98,6 +102,7 @@ namespace AiVoice
                         }
                         else if (key == Keys.O && _recording) AbortRecording();
                         else if (key == Keys.V && !_recording && !_inSettings) SetVoice();
+                        else if (key == Keys.P && !_recording && !_inSettings) SetRecordingLanguage();
                     }
                 }
             }
@@ -108,7 +113,8 @@ namespace AiVoice
             Console.WriteLine("_____________________________________________________________________________");
             Console.WriteLine("1. You can start recording by pressing L, and finish recording by pressing L again.\n");
             Console.WriteLine("2. You can abort the recording by pressing O\n");
-            Console.WriteLine("3. You can change the Ai's voice by pressing V");
+            Console.WriteLine("3. You can change the Ai's voice by pressing V\n");
+            Console.WriteLine("4. You can change the recording language by pressing P");
             Console.WriteLine("_____________________________________________________________________________\n");
         }
 
@@ -139,7 +145,7 @@ namespace AiVoice
         }
         private static void WriteData(object? sender, WaveInEventArgs e) => _waveFileWriter.Write(e.Buffer, 0, e.BytesRecorded);
 
-        private static async Task<string> SpeechToEnglishText(string audioFile)
+        private static async Task<string> SpeechToText(string audioFile)
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAiBearerToken);
             var bytes = File.ReadAllBytes(audioFile);
@@ -158,13 +164,13 @@ namespace AiVoice
             return messageModel.text;
         }
 
-        private static async Task<string> EnglishToJapaneseText(string text)
+        private static async Task<string> TextToJapaneseText(string text)
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _translationBearerToken);
             var translationRequest = new
             {
                 text = text,
-                source_language = "en",
+                source_language = _recordingLanguage.ToString(),
                 translation_language = "ja",
             };
             var httpRequestMessage = new HttpRequestMessage
@@ -229,6 +235,31 @@ namespace AiVoice
             Console.WriteLine($"Sucessfully changed voice to {_characters[_voice]} \n\n");
             ClearInputs();
         }
+
+        private static void SetRecordingLanguage()
+        {
+            _inSettings = true;
+            Console.WriteLine($"Current language is {GetLanguageCodeDisplayName(_recordingLanguage)}");
+            Console.WriteLine("_______________________________________\n");
+            Console.WriteLine("All of the avaliable languages are listed below. Please type the code of the language you want to use.\n");
+            foreach (LanguageCode code in Enum.GetValues<LanguageCode>())
+            {
+                Console.WriteLine($"Language: {GetLanguageCodeDisplayName(code)}, Code: {code}");
+            }
+            Console.WriteLine();
+            ClearConsoleBuffer();
+            string codeTyped;
+            object languageCode;
+            do
+            {
+                codeTyped = Console.ReadLine();
+            } while (!Enum.TryParse(typeof(LanguageCode), codeTyped, true, out languageCode) || int.TryParse(codeTyped, out _));
+            _recordingLanguage = (LanguageCode)languageCode;
+            Console.WriteLine($"Successfully set language to {GetLanguageCodeDisplayName(_recordingLanguage)} \n");
+            _inSettings = false;
+            ClearInputs();
+        }
+        private static string GetLanguageCodeDisplayName(LanguageCode code) => code.GetType().GetMember(code.ToString()).First().GetCustomAttribute<DisplayAttribute>().Name;
 
         private static Guid GetCorrectDeviceGuid()
         {
@@ -354,6 +385,8 @@ namespace AiVoice
         {
             GetAsyncKeyState(0x4C); // Hotfix for any L/V inputs during settings/etc.
             GetAsyncKeyState(0x56); // ...
+            GetAsyncKeyState(0x50); // ...
         }
+
     }
 }
