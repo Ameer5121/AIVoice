@@ -154,7 +154,7 @@ namespace AiVoice
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAiAPIKey);
             var bytes = File.ReadAllBytes(audioFile);
             var formData = new MultipartFormDataContent();
-            formData.Add(new ByteArrayContent(bytes), "file", "wav");
+            formData.Add(new ByteArrayContent(bytes), "file", "temp.wav");
             formData.Add(new StringContent("whisper-1"), "model");
             var response = await _httpClient.PostAsync("https://api.openai.com/v1/audio/transcriptions", formData);
             if (response.StatusCode != HttpStatusCode.OK) throw new HttpRequestException();
